@@ -1,6 +1,6 @@
 {
   "name": "shared-types-publisher",
-  "version": "0.0.1-development",
+  "version": "0.0.0",
   "description": "",
   "keywords": [],
   "main": "dist/lib/index.js",
@@ -28,10 +28,11 @@
     "typedoc": "typedoc --out docs --target es6 --theme minimal --mode file src",
     "deploy-docs": "ts-node tools/gh-pages-publish",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
+    "precommit": "lint-staged",
     "commit": "git-cz",
+    "commitmsg": "commitlint -E HUSKY_GIT_PARAMS",
     "semantic-release": "semantic-release",
-    "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
-    "precommit": "lint-staged"
+    "semantic-release-prepare": "ts-node tools/semantic-release-prepare"
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [

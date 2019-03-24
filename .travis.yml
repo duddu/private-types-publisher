@@ -16,7 +16,7 @@ jobs:
     - stage: release
       if: branch = master
       node_js: '11'
-      script: yarn build && semantic-release
+      script: yarn build && yarn semantic-release
       # deploy:
       #   provider: npm
       #   email: $NPM_EMAIL
