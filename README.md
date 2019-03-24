@@ -1,2 +1,4 @@
-# private-types-publisher
-TypeScript types publisher for private repos
+# shared-types-publisher
+Share TypeScript types publisher across repos
+
+(WIP!)
