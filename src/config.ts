@@ -15,11 +15,11 @@ export interface IConfig {
   }
 }
 
-const CONFIG_JSON_PATH = join(__dirname, '.shared-models.json')
-const BASE_DIR_PATH = join(__dirname, 'shared-models')
+const CONFIG_JSON_PATH = join(process.cwd(), '.shared-models.json')
+const BASE_DIR_PATH = join(process.cwd(), 'shared-models')
 
 const getPackageName = async (): Promise<string> => {
-  const config = await promisify(readFile)(join(__dirname, 'package.json'))
+  const config = await promisify(readFile)(join(process.cwd(), 'package.json'))
   return JSON.parse(config.toString()).name
 }
 

@@ -9,4 +9,7 @@ const main = async (): Promise<void> => {
   await repo.update(packageName, namespaces)
 }
 
-main().catch(e => console.error('EEEEEEEEEERRRORR----------', e))
+main().catch(e => {
+  console.error('Unhandled exception')
+  throw e
+})
