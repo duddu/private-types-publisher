@@ -1,7 +1,5 @@
 language: node_js
-cache: npm
-notifications:
-  email: false
+cache: yarn
 node_js:
   - '11'
   - '10'
@@ -10,21 +8,24 @@ script:
   - yarn test:prod || exit 0
 jobs:
   include:
-    # - stage: coverage
-    #   node_js: '11'
-    #   script: yarn report-coverage
-    - stage: release
+    - stage: deploy
+      name: docs
       if: branch = master
-      node_js: '11'
-      script: yarn build && yarn semantic-release
-      # deploy:
-      #   provider: npm
-      #   email: $NPM_EMAIL
-      #   api_key: $NPM_API_KEY
-# after_success:
-#   - npm run travis-deploy-once "npm run report-coverage"
-#   - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then npm run travis-deploy-once "npm run deploy-docs"; fi
-#   - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then npm run travis-deploy-once "npm run semantic-release"; fi
+      script:
+        - yarn typedoc
+        - yarn deploy-docs
+    - name: coverage
+      if: branch = master
+      script:
+        - yarn test:prod || exit 0
+        - yarn report-coverage
+    - name: release
+      if: branch = master
+      script:
+        - yarn build
+        - yarn semantic-release
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
+notifications:
+  email: false
