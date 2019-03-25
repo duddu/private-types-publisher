@@ -25,13 +25,18 @@
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",
     "test:prod": "npm run lint && npm run test -- --no-cache",
+    "report-coverage": "cat ./coverage/lcov.info | coveralls",
     "typedoc": "typedoc --out docs --target es6 --theme minimal --mode file src",
     "deploy-docs": "ts-node tools/gh-pages-publish",
-    "report-coverage": "cat ./coverage/lcov.info | coveralls",
-    "precommit": "lint-staged",
     "commit": "git-cz",
-    "commitmsg": "commitlint -E HUSKY_GIT_PARAMS",
     "semantic-release": "semantic-release"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run build"
+    }
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
