@@ -31,8 +31,7 @@
     "precommit": "lint-staged",
     "commit": "git-cz",
     "commitmsg": "commitlint -E HUSKY_GIT_PARAMS",
-    "semantic-release": "semantic-release",
-    "semantic-release-prepare": "ts-node tools/semantic-release-prepare"
+    "semantic-release": "semantic-release"
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
