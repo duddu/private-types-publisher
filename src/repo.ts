@@ -1,16 +1,16 @@
-import { mkdir } from 'fs'
+import { mkdirp, remove } from 'fs-extra'
 import { dirname } from 'path'
-import * as rimraf from 'rimraf'
 import * as git from 'simple-git/promise'
-import { promisify } from 'util'
 
 import { INamespaces } from './config'
 
 export class Repository {
     private repo: git.SimpleGit
-    constructor(repoInit: git.SimpleGit) {
-        this.repo = repoInit
+
+    constructor(repo: git.SimpleGit) {
+        this.repo = repo
     }
+
     async update(packageName: string, namespaces: INamespaces): Promise<void> {
         const { not_added } = await this.repo.status()
         await this.repo.add(not_added)
@@ -24,12 +24,16 @@ export class Repository {
     }
 }
 
-export const clone = async (baseDir: string, url: string): Promise<Repository> => {
-    await promisify(rimraf)(baseDir)
-    await promisify(mkdir)(baseDir, {
-        recursive: true
-    })
+export const clone = async (
+    url: string,
+    baseDir: string,
+    repo?: git.SimpleGit
+): Promise<Repository> => {
+    await remove(baseDir)
+    await mkdirp(baseDir)
     if (!url) throw new Error('No repository url provided')
-    await git(dirname(baseDir)).clone(url, baseDir)
-    return new Repository(git(baseDir))
+    if (!repo) repo = git(dirname(baseDir))
+    await repo.clone(url, baseDir)
+    await repo.cwd(baseDir)
+    return new Repository(repo)
 }

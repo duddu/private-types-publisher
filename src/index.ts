@@ -4,7 +4,7 @@ import { clone } from './repo'
 
 const main = async (): Promise<void> => {
     const { baseDir, namespaces, packageName, repository } = await getConfig()
-    const repo = await clone(baseDir, repository.url)
+    const repo = await clone(repository.url, baseDir)
     await writeNamespaces(namespaces, baseDir)
     await repo.update(packageName, namespaces)
 }
