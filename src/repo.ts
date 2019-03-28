@@ -24,16 +24,12 @@ export class Repository {
     }
 }
 
-export const clone = async (
-    url: string,
-    baseDir: string,
-    repo?: git.SimpleGit
-): Promise<Repository> => {
-    await remove(baseDir)
-    await mkdirp(baseDir)
+export const clone = async (url: string, targetDir: string): Promise<Repository> => {
+    await remove(targetDir)
+    await mkdirp(targetDir)
     if (!url) throw new Error('No repository url provided')
-    if (!repo) repo = git(dirname(baseDir))
-    await repo.clone(url, baseDir)
-    await repo.cwd(baseDir)
+    const repo = git(dirname(targetDir))
+    await repo.clone(url, targetDir)
+    await repo.cwd(targetDir)
     return new Repository(repo)
 }

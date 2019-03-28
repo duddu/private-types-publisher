@@ -25,8 +25,11 @@ const parseNamespaces = (store: Store, namespaces: INamespaces, parentDir: strin
     return store
 }
 
-export const writeNamespaces = async (namespaces: INamespaces, baseDir: string): Promise<void> => {
+export const writeNamespaces = async (
+    namespaces: INamespaces,
+    targetDir: string
+): Promise<void> => {
     const store = new Store()
-    const parsed = parseNamespaces(store, namespaces, baseDir)
+    const parsed = parseNamespaces(store, namespaces, targetDir)
     return parsed.write()
 }
