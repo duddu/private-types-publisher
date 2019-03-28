@@ -5,10 +5,6 @@ import { DefaultLogFields, ListLogSummary } from 'simple-git/typings/response'
 
 import { INamespaces } from './config'
 
-interface IRepositoryUpdateOptions {
-    dryRun?: boolean
-}
-
 export const getCommitMessage = (packageName: string): string =>
     `Update shared models for ${packageName}`
 
@@ -21,8 +17,7 @@ export class Repository {
 
     async update(
         packageName: string,
-        namespaces: INamespaces,
-        options: IRepositoryUpdateOptions = {}
+        namespaces: INamespaces
     ): Promise<ListLogSummary<DefaultLogFields>> {
         const { not_added } = await this.repo.status()
         await this.repo.add(not_added)
@@ -31,10 +26,8 @@ export class Repository {
             // undefined,
             // { '--amend': null }
         )
-        await this.repo.push(undefined, undefined, {
-            ...(options.dryRun ? { '--dry-run': null } : {})
-            // '-f': null
-        })
+        await this.repo.push()
+        // await this.repo.push(undefined, undefined, {'-f': null})
         return this.repo.log()
     }
 }

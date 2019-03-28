@@ -1,19 +1,24 @@
-import { remove, writeFile } from 'fs-extra'
+import { mkdirp, remove, writeFile } from 'fs-extra'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import * as git from 'simple-git/promise'
 
 import { clone, getCommitMessage, Repository } from '../src/repo'
 
-const CLONE_PATH = join(tmpdir(), 'shared-types-publisher/clone')
-const GIT_USER = `Unit Tester ${Date.now}`
+const TEST_BASE_PATH = join(tmpdir(), 'shared-types-publisher/repo')
+const ORIGIN_PATH = join(TEST_BASE_PATH, 'origin')
+const CLONE_PATH = join(TEST_BASE_PATH, 'clone')
+const GIT_USER = `Unit Tester ${new Date().valueOf()}`
+const PACKAGE_TEST = `package_name_test`
 
-describe.only('Repository test', () => {
+describe('Repository test', () => {
     let repo: Repository
 
     beforeAll(async () => {
-        jest.setTimeout(10000)
-        repo = await clone('https://github.com/duddu/shared-types-publisher.git', CLONE_PATH)
+        await remove(ORIGIN_PATH)
+        await mkdirp(ORIGIN_PATH)
+        await git(ORIGIN_PATH).init(true)
+        repo = await clone(ORIGIN_PATH, CLONE_PATH)
     })
 
     it('class is instantiable', () => {
@@ -26,7 +31,7 @@ describe.only('Repository test', () => {
         })
 
         it('should throw if no url is provided', async () => {
-            await expect(clone('', join(CLONE_PATH, 'throw-test'))).rejects.toThrow()
+            await expect(clone('', join(CLONE_PATH, 'throw_test'))).rejects.toThrow()
         })
     })
 
@@ -34,13 +39,11 @@ describe.only('Repository test', () => {
         it('should push the updates to the remote origin', async () => {
             await writeFile(join(CLONE_PATH, 'EDIT'), `Edited by ${GIT_USER}`)
             await git(CLONE_PATH).addConfig('user.name', GIT_USER)
-            const logs = await repo.update('package-name-test', {}, { dryRun: true })
+            const logs = await repo.update(PACKAGE_TEST, {})
             expect(logs.latest.author_name).toEqual(GIT_USER)
-            expect(logs.latest.message).toEqual(getCommitMessage('package-name-test'))
+            expect(logs.latest.message).toEqual(getCommitMessage(PACKAGE_TEST))
         })
     })
 
-    afterAll(async () => {
-        await remove(CLONE_PATH)
-    })
+    afterAll(async () => remove(TEST_BASE_PATH))
 })
