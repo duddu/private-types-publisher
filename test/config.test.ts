@@ -15,7 +15,7 @@ const configMock: Partial<IConfig> = {
         }
     },
     repository: {
-        url: 'https://example.com/test.git'
+        url: 'https://github.com/duddu/shared-types-publisher.git'
     }
 }
 
@@ -28,49 +28,51 @@ const initMockFs = (overrides: Partial<IConfig> = {}) => {
 }
 
 describe('Config test', () => {
-    it('getConfig() should return config with defaults', async () => {
-        initMockFs()
-        await expect(getConfig()).resolves.toEqual({
-            ...configMock,
-            packageName: packageJsonMock.name,
-            targetDir: join(BASE_DIR, TARGET_DIR)
+    describe('getConfig()', () => {
+        it('should return config with defaults', async () => {
+            initMockFs()
+            await expect(getConfig()).resolves.toEqual({
+                ...configMock,
+                packageName: packageJsonMock.name,
+                targetDir: join(BASE_DIR, TARGET_DIR)
+            })
         })
-    })
 
-    it('getConfig() should return config with overriden baseDir', async () => {
-        initMockFs({
-            targetDir: 'overridenBaseDir'
+        it('should return config with overriden baseDir', async () => {
+            initMockFs({
+                targetDir: 'overridenBaseDir'
+            })
+            await expect(getConfig()).resolves.toEqual({
+                ...configMock,
+                packageName: packageJsonMock.name,
+                targetDir: 'overridenBaseDir'
+            })
         })
-        await expect(getConfig()).resolves.toEqual({
-            ...configMock,
-            packageName: packageJsonMock.name,
-            targetDir: 'overridenBaseDir'
-        })
-    })
 
-    it('getConfig() should return config with overriden packageName', async () => {
-        initMockFs({
-            packageName: 'overridenPackageName'
+        it('should return config with overriden packageName', async () => {
+            initMockFs({
+                packageName: 'overridenPackageName'
+            })
+            await expect(getConfig()).resolves.toEqual({
+                ...configMock,
+                packageName: 'overridenPackageName',
+                targetDir: join(BASE_DIR, TARGET_DIR)
+            })
         })
-        await expect(getConfig()).resolves.toEqual({
-            ...configMock,
-            packageName: 'overridenPackageName',
-            targetDir: join(BASE_DIR, TARGET_DIR)
-        })
-    })
 
-    it('getConfig() should throw if no namespaces are provided', async () => {
-        initMockFs({
-            namespaces: undefined
+        it('should throw if no namespaces are provided', async () => {
+            initMockFs({
+                namespaces: undefined
+            })
+            await expect(getConfig()).rejects.toThrow()
         })
-        await expect(getConfig()).rejects.toThrow()
-    })
 
-    it('getConfig() should throw if empty namespaces are provided', async () => {
-        initMockFs({
-            namespaces: {}
+        it('should throw if empty namespaces are provided', async () => {
+            initMockFs({
+                namespaces: {}
+            })
+            await expect(getConfig()).rejects.toThrow()
         })
-        await expect(getConfig()).rejects.toThrow()
     })
 
     afterEach(() => {
