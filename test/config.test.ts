@@ -1,8 +1,8 @@
 import * as mockFs from 'mock-fs'
 import { join } from 'path'
 
-const help = require('./utils/fs-mock-helper')
-import { BASE_DIR_PATH, getConfig, IConfig } from '../src/config'
+const help = require('./utils/helpers')
+import { BASE_DIR, CONFIG_FILE, getConfig, IConfig, PACKAGE_JSON, TARGET_DIR } from '../src/config'
 
 const packageJsonMock = {
     name: 'test-package-name'
@@ -21,34 +21,30 @@ const configMock: Partial<IConfig> = {
 
 const initMockFs = (overrides: Partial<IConfig> = {}) => {
     mockFs({
-        'package.json': JSON.stringify(packageJsonMock),
-        '.shared-models.json': JSON.stringify(Object.assign(configMock, overrides)),
-        'node_modules/callsites': help.duplicateFSInMemory(
-            join(process.cwd(), 'node_modules/callsites')
-        )
+        [PACKAGE_JSON]: JSON.stringify(packageJsonMock),
+        [CONFIG_FILE]: JSON.stringify(Object.assign({}, configMock, overrides)),
+        'node_modules/callsites': help.duplicateFSInMemory(join(BASE_DIR, 'node_modules/callsites'))
     })
-    // jest.dontMock(join(process.cwd(), '.shared-models.json'))
-    // jest.dontMock(require.resolve(join(process.cwd(), '.shared-models.json')))
 }
 
 describe('Config test', () => {
     it('getConfig() should return config with defaults', async () => {
         initMockFs()
-        expect(await getConfig()).toEqual({
-            baseDir: BASE_DIR_PATH,
+        await expect(getConfig()).resolves.toEqual({
+            ...configMock,
             packageName: packageJsonMock.name,
-            ...configMock
+            targetDir: join(BASE_DIR, TARGET_DIR)
         })
     })
 
     it('getConfig() should return config with overriden baseDir', async () => {
         initMockFs({
-            baseDir: 'overridenBaseDir'
+            targetDir: 'overridenBaseDir'
         })
-        expect(await getConfig()).toEqual({
-            baseDir: 'overridenBaseDir',
+        await expect(getConfig()).resolves.toEqual({
+            ...configMock,
             packageName: packageJsonMock.name,
-            ...configMock
+            targetDir: 'overridenBaseDir'
         })
     })
 
@@ -56,10 +52,10 @@ describe('Config test', () => {
         initMockFs({
             packageName: 'overridenPackageName'
         })
-        expect(await getConfig()).toEqual({
-            baseDir: BASE_DIR_PATH,
+        await expect(getConfig()).resolves.toEqual({
+            ...configMock,
             packageName: 'overridenPackageName',
-            ...configMock
+            targetDir: join(BASE_DIR, TARGET_DIR)
         })
     })
 
@@ -77,15 +73,8 @@ describe('Config test', () => {
         await expect(getConfig()).rejects.toThrow()
     })
 
-    afterEach(async () => {
-        // console.log({cache: require.cache})
-        // decache(join(process.cwd(), '.shared-models.json'));
-        // delete require.cache[join(process.cwd(), '.shared-models.json')]
-        // delete require.cache[require.resolve(join(process.cwd(), '.shared-models.json'))]
-        // delete require.cache[require.resolve(join(process.cwd(), 'package.json'))]
-        // await promisify(unlink)(join(process.cwd(), '.shared-models.json'))
+    afterEach(() => {
         mockFs.restore()
         jest.resetModules()
-        // require.requireMock
     })
 })
