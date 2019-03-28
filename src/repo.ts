@@ -1,8 +1,16 @@
 import { mkdirp, remove } from 'fs-extra'
 import { dirname } from 'path'
 import * as git from 'simple-git/promise'
+import { DefaultLogFields, ListLogSummary } from 'simple-git/typings/response'
 
 import { INamespaces } from './config'
+
+interface IRepositoryUpdateOptions {
+    dryRun?: boolean
+}
+
+export const getCommitMessage = (packageName: string): string =>
+    `Update shared models for ${packageName}`
 
 export class Repository {
     private repo: git.SimpleGit
@@ -11,16 +19,23 @@ export class Repository {
         this.repo = repo
     }
 
-    async update(packageName: string, namespaces: INamespaces): Promise<void> {
+    async update(
+        packageName: string,
+        namespaces: INamespaces,
+        options: IRepositoryUpdateOptions = {}
+    ): Promise<ListLogSummary<DefaultLogFields>> {
         const { not_added } = await this.repo.status()
         await this.repo.add(not_added)
         await this.repo.commit(
-            [`Update shared models for ${packageName}`, JSON.stringify(namespaces, null, 4)],
-            undefined
+            [getCommitMessage(packageName), JSON.stringify(namespaces, null, 4)]
+            // undefined,
             // { '--amend': null }
         )
-        return this.repo.push()
-        // return this.repo.push(undefined, undefined, { '-f': null })
+        await this.repo.push(undefined, undefined, {
+            ...(options.dryRun ? { '--dry-run': null } : {})
+            // '-f': null
+        })
+        return this.repo.log()
     }
 }
 
