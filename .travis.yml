@@ -1,31 +1,32 @@
 language: node_js
 cache: yarn
+notifications:
+  email: false
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
 node_js:
   - '11'
   - '10'
   - '8'
+stages:
+  - test
+  - name: deploy
+    if: fork = false AND branch = master AND type != pull_request
 script:
   - yarn test:prod || exit 0
 jobs:
   include:
     - stage: deploy
       name: docs
-      if: branch = master
       script:
         - yarn typedoc
         - yarn deploy-docs
     - name: coverage
-      if: branch = master
       script:
         - yarn test:prod || exit 0
         - yarn report-coverage
     - name: release
-      if: branch = master
       script:
         - yarn build
         - yarn semantic-release
-branches:
-  except:
-    - /^v\d+\.\d+\.\d+$/
-notifications:
-  email: false
