@@ -1,11 +1,11 @@
-import * as mockFs from 'mock-fs'
+import * as mockFS from 'mock-fs'
 import { join } from 'path'
 
-const help = require('./utils/helpers')
 import { BASE_DIR, CONFIG_FILE, getConfig, IConfig, PACKAGE_JSON, TARGET_DIR } from '../src/config'
+import { getMockPackageName, getMockFSWithModules } from './utils/helpers'
 
 const packageJsonMock = {
-    name: 'test-package-name'
+    name: getMockPackageName()
 }
 
 const configMock: Partial<IConfig> = {
@@ -15,22 +15,31 @@ const configMock: Partial<IConfig> = {
         }
     },
     repository: {
-        url: 'https://github.com/duddu/shared-types-publisher.git'
+        url: 'repo-url.git'
     }
 }
 
-const initMockFs = (overrides: Partial<IConfig> = {}) => {
-    mockFs({
-        [PACKAGE_JSON]: JSON.stringify(packageJsonMock),
-        [CONFIG_FILE]: JSON.stringify(Object.assign({}, configMock, overrides)),
-        'node_modules/callsites': help.duplicateFSInMemory(join(BASE_DIR, 'node_modules/callsites'))
-    })
-}
+const getBaseMockFS = async (): Promise<{}> => ({
+    ...(await getMockFSWithModules()),
+    [PACKAGE_JSON]: JSON.stringify(packageJsonMock)
+})
 
 describe('Config test', () => {
+    let initMockFS: (overrides?: Partial<IConfig>) => void
+
+    beforeAll(async () => {
+        const baseMockFS = await getBaseMockFS()
+        initMockFS = (overrides = {}) => {
+            mockFS({
+                ...baseMockFS,
+                [CONFIG_FILE]: JSON.stringify(Object.assign({}, configMock, overrides))
+            })
+        }
+    })
+
     describe('getConfig()', () => {
         it('should return config with defaults', async () => {
-            initMockFs()
+            await initMockFS()
             await expect(getConfig()).resolves.toEqual({
                 ...configMock,
                 packageName: packageJsonMock.name,
@@ -39,7 +48,7 @@ describe('Config test', () => {
         })
 
         it('should return config with overriden baseDir', async () => {
-            initMockFs({
+            await initMockFS({
                 targetDir: 'overridenBaseDir'
             })
             await expect(getConfig()).resolves.toEqual({
@@ -50,7 +59,7 @@ describe('Config test', () => {
         })
 
         it('should return config with overriden packageName', async () => {
-            initMockFs({
+            await initMockFS({
                 packageName: 'overridenPackageName'
             })
             await expect(getConfig()).resolves.toEqual({
@@ -61,14 +70,14 @@ describe('Config test', () => {
         })
 
         it('should throw if no namespaces are provided', async () => {
-            initMockFs({
+            await initMockFS({
                 namespaces: undefined
             })
             await expect(getConfig()).rejects.toThrow()
         })
 
         it('should throw if empty namespaces are provided', async () => {
-            initMockFs({
+            await initMockFS({
                 namespaces: {}
             })
             await expect(getConfig()).rejects.toThrow()
@@ -76,7 +85,7 @@ describe('Config test', () => {
     })
 
     afterEach(() => {
-        mockFs.restore()
+        mockFS.restore()
         jest.resetModules()
     })
 })

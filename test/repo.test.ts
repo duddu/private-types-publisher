@@ -4,12 +4,13 @@ import { join } from 'path'
 import * as git from 'simple-git/promise'
 
 import { clone, getCommitMessage, Repository } from '../src/repo'
+import { getMockPackageName } from './utils/helpers'
 
 const TEST_BASE_PATH = join(tmpdir(), 'shared-types-publisher/repo')
 const ORIGIN_PATH = join(TEST_BASE_PATH, 'origin')
 const CLONE_PATH = join(TEST_BASE_PATH, 'clone')
 const GIT_USER = `Unit Tester ${new Date().valueOf()}`
-const PACKAGE_TEST = `package_name_test`
+const PACKAGE_TEST = getMockPackageName()
 
 describe('Repository test', () => {
     let repo: Repository

@@ -1,7 +1,8 @@
 import { readFile } from 'fs-extra'
-import * as mockFs from 'mock-fs'
+import * as mockFS from 'mock-fs'
 
 import { Store } from '../src/store'
+import { getMockFSWithModules } from './utils/helpers'
 
 describe('Store test', () => {
     let store: Store
@@ -11,9 +12,16 @@ describe('Store test', () => {
     })
 
     describe('addModel()', () => {
+        let baseMockFS: {}
+
+        beforeAll(async () => {
+            baseMockFS = await getMockFSWithModules()
+        })
+
         beforeEach(() => {
             store = new Store()
-            mockFs({
+            mockFS({
+                ...baseMockFS,
                 path: {
                     to: {
                         'model1.d.ts': 'model1ContentMock',
@@ -58,7 +66,7 @@ describe('Store test', () => {
     describe('addBarrel()', () => {
         beforeEach(() => {
             store = new Store()
-            mockFs({
+            mockFS({
                 targetDir: {
                     nestedDir: {
                         'index.d.ts': 'import 1\n\nexport 1'
@@ -104,5 +112,5 @@ describe('Store test', () => {
         })
     })
 
-    afterEach(mockFs.restore)
+    afterEach(mockFS.restore)
 })
