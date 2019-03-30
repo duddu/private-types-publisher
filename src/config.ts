@@ -1,13 +1,11 @@
-import { readFile } from 'fs'
 import { join } from 'path'
-import { promisify } from 'util'
 
 export interface INamespaces {
     [k: string]: INamespaces | string[]
 }
 
 export interface IConfig {
-    baseDir: string
+    targetDir: string
     namespaces: INamespaces
     packageName: string
     repository: {
@@ -15,33 +13,29 @@ export interface IConfig {
     }
 }
 
-const CONFIG_JSON_PATH = join(process.cwd(), '.shared-models.json')
-const BASE_DIR_PATH = join(process.cwd(), 'shared-models')
+export const BASE_DIR = process.cwd()
+export const TARGET_DIR = 'shared-models'
+export const CONFIG_FILE = '.shared-models.json'
+export const PACKAGE_JSON = 'package.json'
 
 const getPackageName = async (): Promise<string> => {
-    const config = await promisify(readFile)(join(process.cwd(), 'package.json'))
-    return JSON.parse(config.toString()).name
+    return require(join(BASE_DIR, PACKAGE_JSON)).name
 }
 
 const getConfigDefaults = async (): Promise<IConfig> => ({
-    baseDir: BASE_DIR_PATH,
+    targetDir: join(BASE_DIR, TARGET_DIR),
     namespaces: {},
     packageName: await getPackageName(),
     repository: {
-        url: 'null'
+        url: ''
     }
 })
 
 export const getConfig = async (): Promise<IConfig> => {
-    let defaults = await getConfigDefaults()
-    try {
-        const read = await promisify(readFile)(CONFIG_JSON_PATH)
-        const config: IConfig = JSON.parse(read.toString())
-        if (!config.namespaces || Object.keys(config.namespaces).length === 0) {
-            throw new Error('No namespaces provided in configuration object.')
-        }
-        return Object.assign(defaults, config)
-    } catch (e) {
-        throw e
+    const defaults = await getConfigDefaults()
+    const config: IConfig = require(join(BASE_DIR, CONFIG_FILE))
+    if (!config.namespaces || Object.keys(config.namespaces).length === 0) {
+        throw new Error('No namespaces provided in configuration object.')
     }
+    return Object.assign(defaults, config)
 }

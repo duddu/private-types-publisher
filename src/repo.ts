@@ -1,35 +1,43 @@
-import { mkdir } from 'fs'
+import { mkdirp, remove } from 'fs-extra'
 import { dirname } from 'path'
-import * as rimraf from 'rimraf'
 import * as git from 'simple-git/promise'
-import { promisify } from 'util'
+import { DefaultLogFields, ListLogSummary } from 'simple-git/typings/response'
 
 import { INamespaces } from './config'
 
+export const getCommitMessage = (packageName: string): string =>
+    `Update shared models for ${packageName}`
+
 export class Repository {
     private repo: git.SimpleGit
-    constructor(repoInit: git.SimpleGit) {
-        this.repo = repoInit
+
+    constructor(repo: git.SimpleGit) {
+        this.repo = repo
     }
-    async update(packageName: string, namespaces: INamespaces): Promise<void> {
+
+    async update(
+        packageName: string,
+        namespaces: INamespaces
+    ): Promise<ListLogSummary<DefaultLogFields>> {
         const { not_added } = await this.repo.status()
         await this.repo.add(not_added)
         await this.repo.commit(
-            [`Update shared models for ${packageName}`, JSON.stringify(namespaces, null, 4)],
-            undefined
+            [getCommitMessage(packageName), JSON.stringify(namespaces, null, 4)]
+            // undefined,
             // { '--amend': null }
         )
-        return this.repo.push()
-        // return this.repo.push(undefined, undefined, { '-f': null })
+        await this.repo.push()
+        // await this.repo.push(undefined, undefined, {'-f': null})
+        return this.repo.log()
     }
 }
 
-export const clone = async (baseDir: string, url: string): Promise<Repository> => {
-    await promisify(rimraf)(baseDir)
-    await promisify(mkdir)(baseDir, {
-        recursive: true
-    })
+export const clone = async (url: string, targetDir: string): Promise<Repository> => {
+    await remove(targetDir)
+    await mkdirp(targetDir)
     if (!url) throw new Error('No repository url provided')
-    await git(dirname(baseDir)).clone(url, baseDir)
-    return new Repository(git(baseDir))
+    const repo = git(dirname(targetDir))
+    await repo.clone(url, targetDir)
+    await repo.cwd(targetDir)
+    return new Repository(repo)
 }

@@ -3,9 +3,9 @@ import { writeNamespaces } from './namespaces'
 import { clone } from './repo'
 
 const main = async (): Promise<void> => {
-    const { baseDir, namespaces, packageName, repository } = await getConfig()
-    const repo = await clone(baseDir, repository.url)
-    await writeNamespaces(namespaces, baseDir)
+    const { targetDir, namespaces, packageName, repository } = await getConfig()
+    const repo = await clone(repository.url, targetDir)
+    await writeNamespaces(namespaces, targetDir)
     await repo.update(packageName, namespaces)
 }
 
