@@ -11,7 +11,7 @@ const packageJsonMock = {
 const configMock: Partial<IConfig> = {
     namespaces: {
         SampleNamespace: {
-            NestedSampleNamespace: ['/path/to/model']
+            NestedSampleNamespace: ['/path/to/model1', '/path/to/model2']
         }
     },
     repository: {
@@ -32,7 +32,10 @@ describe('Config test', () => {
         initMockFS = (overrides = {}) => {
             mockFS({
                 ...baseMockFS,
-                [CONFIG_FILE]: JSON.stringify(Object.assign({}, configMock, overrides))
+                [CONFIG_FILE]: JSON.stringify({
+                    ...configMock,
+                    ...overrides
+                })
             })
         }
     })

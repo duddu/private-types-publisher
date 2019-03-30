@@ -2,7 +2,7 @@ import { readdir, readFileSync, stat } from 'fs'
 import { basename, extname, join } from 'path'
 import { promisify } from 'util'
 
-import { BASE_DIR } from '../../src/config'
+import { BASE_DIR, INamespaces } from '../../src/config'
 
 interface IModule {
     [k: string]: IModule | string
@@ -11,6 +11,24 @@ interface IModule {
 const nodeModulesWhitelist = ['callsites']
 const extensionsWhitelist = ['.ts', '.js']
 const modulesBaseDir = join(BASE_DIR, 'node_modules')
+
+export const mockTargetDirName = 'mock_target_dir'
+export const mockTargetDirPath = join(BASE_DIR, mockTargetDirName)
+
+export const mockNamespaces: INamespaces = {
+    SampleNamespace: {
+        NestedSampleNamespace: ['/path/to/model2', '/path/to/model1']
+    }
+}
+
+export const mockModelsFS = {
+    path: {
+        to: {
+            'model1.d.ts': 'model1ContentMock',
+            'model2.d.ts': 'model2ContentMock'
+        }
+    }
+}
 
 export const getMockPackageName = (): string => `test_package_name_${new Date().valueOf()}`
 
