@@ -22,6 +22,7 @@ jobs:
   include:
     - stage: test
       name: static analysis
+      install: true
       script:
         - sonar-scanner
     - stage: deploy
