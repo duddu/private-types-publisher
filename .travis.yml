@@ -9,6 +9,9 @@ node_js:
   - '11'
   - '10'
   - '8'
+addons:
+  sonarcloud:
+    organization: duddu-github
 stages:
   - test
   - name: deploy
@@ -17,6 +20,10 @@ script:
   - yarn test:prod
 jobs:
   include:
+    - stage: test
+      name: static analysis
+      script:
+        - sonar-scanner
     - stage: deploy
       name: docs
       script:
