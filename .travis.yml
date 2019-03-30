@@ -14,7 +14,7 @@ stages:
   - name: deploy
     if: fork = false AND branch = master AND type != pull_request
 script:
-  - yarn test:prod || exit 0
+  - yarn test:prod
 jobs:
   include:
     - stage: deploy
@@ -24,7 +24,7 @@ jobs:
         - yarn deploy-docs
     - name: coverage
       script:
-        - yarn test:prod || exit 0
+        - yarn test:prod
         - yarn report-coverage
     - name: release
       script:
