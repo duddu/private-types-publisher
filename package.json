@@ -89,7 +89,8 @@
   "dependencies": {
     "@types/fs-extra": "^5.0.5",
     "fs-extra": "^7.0.1",
-    "simple-git": "^1.110.0"
+    "simple-git": "^1.110.0",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.5.2",
