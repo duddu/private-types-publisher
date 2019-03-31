@@ -43,7 +43,7 @@ describe('Config test', () => {
     describe('getConfig()', () => {
         it('should return config with defaults', async () => {
             await initMockFS()
-            await expect(getConfig()).resolves.toEqual({
+            await expect(getConfig()).resolves.toStrictEqual({
                 ...configMock,
                 packageName: packageJsonMock.name,
                 targetDir: join(BASE_DIR, TARGET_DIR)
@@ -54,7 +54,7 @@ describe('Config test', () => {
             await initMockFS({
                 targetDir: 'overridenBaseDir'
             })
-            await expect(getConfig()).resolves.toEqual({
+            await expect(getConfig()).resolves.toStrictEqual({
                 ...configMock,
                 packageName: packageJsonMock.name,
                 targetDir: 'overridenBaseDir'
@@ -65,7 +65,7 @@ describe('Config test', () => {
             await initMockFS({
                 packageName: 'overridenPackageName'
             })
-            await expect(getConfig()).resolves.toEqual({
+            await expect(getConfig()).resolves.toStrictEqual({
                 ...configMock,
                 packageName: 'overridenPackageName',
                 targetDir: join(BASE_DIR, TARGET_DIR)
@@ -76,14 +76,14 @@ describe('Config test', () => {
             await initMockFS({
                 namespaces: undefined
             })
-            await expect(getConfig()).rejects.toThrow()
+            await expect(getConfig()).rejects.toThrowError(/No namespaces/)
         })
 
         it('should throw if empty namespaces are provided', async () => {
             await initMockFS({
                 namespaces: {}
             })
-            await expect(getConfig()).rejects.toThrow()
+            await expect(getConfig()).rejects.toThrowError(/No namespaces/)
         })
     })
 

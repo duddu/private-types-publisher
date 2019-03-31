@@ -41,8 +41,8 @@ describe('Repository test', () => {
             await writeFile(join(CLONE_PATH, 'EDIT'), `Edited by ${GIT_USER}`)
             await git(CLONE_PATH).addConfig('user.name', GIT_USER)
             const logs = await repo.update(PACKAGE_TEST, {})
-            expect(logs.latest.author_name).toEqual(GIT_USER)
-            expect(logs.latest.message).toEqual(getCommitMessage(PACKAGE_TEST))
+            expect(logs.latest.author_name).toStrictEqual(GIT_USER)
+            expect(logs.latest.message).toStrictEqual(getCommitMessage(PACKAGE_TEST))
         })
     })
 

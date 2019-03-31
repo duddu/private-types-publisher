@@ -30,7 +30,7 @@ describe('Namespaces test', () => {
 
         it('should write first level namespace', () => {
             const file = readFileSync(join(mockTargetDirPath, 'index.d.ts'))
-            expect(file.toString()).toEqual(
+            expect(file.toString()).toStrictEqual(
                 `import * as ${key} from "./${key.toLowerCase()}";\n\nexport { ${key} };`
             )
         })
@@ -40,7 +40,7 @@ describe('Namespaces test', () => {
             const file = readFileSync(
                 join(mockTargetDirPath, Object.keys(mockNamespaces)[0].toLowerCase(), 'index.d.ts')
             )
-            expect(file.toString()).toEqual(
+            expect(file.toString()).toStrictEqual(
                 `import * as ${key} from "./${key.toLowerCase()}";\n\nexport { ${key} };`
             )
         })
@@ -54,7 +54,9 @@ describe('Namespaces test', () => {
                     'index.d.ts'
                 )
             )
-            expect(file.toString()).toEqual(`export * from "./model1";\nexport * from "./model2";`)
+            expect(file.toString()).toStrictEqual(
+                `export * from "./model1";\nexport * from "./model2";`
+            )
         })
     })
 
